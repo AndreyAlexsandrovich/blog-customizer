@@ -55,7 +55,7 @@ export const ArticleParamsForm = ({
     };
     document.addEventListener('mousedown', handleClickOutside);
 
-    return () => {
+    return (): void => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onToggle]);
