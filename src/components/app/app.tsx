@@ -12,8 +12,6 @@ import type { CSSProperties } from 'react';
 import styles from './app.module.scss';
 
 export const App = (): React.JSX.Element => {
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [formState, setFormState] = useState<ArticleStateType>(defaultArticleState);
   const [appliedState, setAppliedState] =
     useState<ArticleStateType>(defaultArticleState);
   return (
@@ -29,17 +27,7 @@ export const App = (): React.JSX.Element => {
         } as CSSProperties
       }
     >
-      <ArticleParamsForm
-        isOpen={isPanelOpen}
-        onToggle={(): void => setIsPanelOpen((prev) => !prev)}
-        formState={formState}
-        onChange={setFormState}
-        onApply={(): void => setAppliedState(formState)}
-        onReset={(): void => {
-          setFormState(defaultArticleState);
-          setAppliedState(defaultArticleState);
-        }}
-      />
+      <ArticleParamsForm onApply={setAppliedState} />
       <Article />
     </main>
   );

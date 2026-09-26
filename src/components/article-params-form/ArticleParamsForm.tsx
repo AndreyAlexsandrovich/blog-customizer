@@ -1,11 +1,12 @@
 import { clsx } from 'clsx';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   fontFamilyOptions,
   fontColors,
   backgroundColors,
   contentWidthArr,
   fontSizeOptions,
+  defaultArticleState,
 } from 'src/constants/articleProps';
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
@@ -19,23 +20,25 @@ import type { ArticleStateType } from 'src/constants/articleProps.ts';
 import styles from './ArticleParamsForm.module.scss';
 
 type ArticleParamsFormProps = {
-  isOpen: boolean;
-  onToggle: () => void;
-  formState: ArticleStateType;
-  onChange: (state: ArticleStateType) => void;
-  onApply: () => void;
-  onReset: () => void;
+  onApply: (state: ArticleStateType) => void;
 };
 
 export const ArticleParamsForm = ({
-  isOpen,
-  onToggle,
-  formState,
-  onChange,
   onApply,
-  onReset,
 }: ArticleParamsFormProps): React.JSX.Element => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formState, setFormState] = useState<ArticleStateType>(defaultArticleState);
   const sidebarRef = useRef<HTMLElement>(null);
+  const togglePanel = (): void => setIsOpen((prev) => !prev);
+
+  const handleReset = (): void => {
+    setFormState(defaultArticleState);
+    onApply(defaultArticleState);
+  };
+
+  const handleApply = (): void => {
+    onApply(formState);
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -51,18 +54,18 @@ export const ArticleParamsForm = ({
 
       if (arrow?.contains(target)) return;
 
-      onToggle();
+      setIsOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
 
     return (): void => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onToggle]);
+  }, [isOpen]);
 
   return (
     <>
-      <ArrowButton isOpen={isOpen} onClick={onToggle} />
+      <ArrowButton isOpen={isOpen} onClick={togglePanel} />
       <aside
         ref={sidebarRef}
         className={clsx(styles.container, { [styles.container_open]: isOpen })}
@@ -71,11 +74,11 @@ export const ArticleParamsForm = ({
           className={styles.form}
           onSubmit={(e): void => {
             e.preventDefault();
-            onApply();
+            handleApply();
           }}
           onReset={(e): void => {
             e.preventDefault();
-            onReset();
+            handleReset();
           }}
         >
           <div className={styles.title}>
@@ -93,7 +96,7 @@ export const ArticleParamsForm = ({
               selected={formState.fontFamilyOption}
               options={fontFamilyOptions}
               onChange={(option): void => {
-                onChange({ ...formState, fontFamilyOption: option });
+                setFormState({ ...formState, fontFamilyOption: option });
               }}
             />
           </div>
@@ -104,7 +107,7 @@ export const ArticleParamsForm = ({
               options={fontSizeOptions}
               selected={formState.fontSizeOption}
               onChange={(option): void =>
-                onChange({ ...formState, fontSizeOption: option })
+                setFormState({ ...formState, fontSizeOption: option })
               }
             />
           </div>
@@ -118,7 +121,7 @@ export const ArticleParamsForm = ({
               selected={formState.fontColor}
               options={fontColors}
               onChange={(option): void => {
-                onChange({ ...formState, fontColor: option });
+                setFormState({ ...formState, fontColor: option });
               }}
             />
           </div>
@@ -133,20 +136,24 @@ export const ArticleParamsForm = ({
               selected={formState.backgroundColor}
               options={backgroundColors}
               onChange={(option): void => {
-                onChange({ ...formState, backgroundColor: option });
+                setFormState({ ...formState, backgroundColor: option });
               }}
             />
           </div>
-          <Text as="h2" size={12} weight={800}>
-            ширина контента
-          </Text>
-          <Select
-            selected={formState.contentWidth}
-            options={contentWidthArr}
-            onChange={(option): void => {
-              onChange({ ...formState, contentWidth: option });
-            }}
-          />
+          <div className={styles.selectedFree}>
+            <div className={styles.sectionTitle}>
+              <Text as="h2" size={12} weight={800}>
+                ширина контента
+              </Text>
+            </div>
+            <Select
+              selected={formState.contentWidth}
+              options={contentWidthArr}
+              onChange={(option): void => {
+                setFormState({ ...formState, contentWidth: option });
+              }}
+            />
+          </div>
           <div className={styles.bottomContainer}>
             <Button title="Сбросить" htmlType="reset" type="clear" />
             <Button title="Применить" htmlType="submit" type="apply" />
