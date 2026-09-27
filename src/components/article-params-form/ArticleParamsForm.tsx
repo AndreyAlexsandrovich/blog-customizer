@@ -15,7 +15,7 @@ import { Select } from 'src/ui/select';
 import { Separator } from 'src/ui/separator';
 import { Text } from 'src/ui/text';
 
-import type { ArticleStateType } from 'src/constants/articleProps.ts';
+import type { OptionType, ArticleStateType } from '../../constants/articleProps';
 
 import styles from './ArticleParamsForm.module.scss';
 
@@ -26,9 +26,9 @@ type ArticleParamsFormProps = {
 export const ArticleParamsForm = ({
   onApply,
 }: ArticleParamsFormProps): React.JSX.Element => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [formState, setFormState] = useState<ArticleStateType>(defaultArticleState);
-  const togglePanel = (): void => setIsOpen((prev) => !prev);
+  const togglePanel = (): void => setIsPanelOpen((prev) => !prev);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleReset = (): void => {
@@ -40,27 +40,34 @@ export const ArticleParamsForm = ({
     onApply(formState);
   };
 
+  const handleChange =
+    (filed: keyof ArticleStateType) =>
+    (option: OptionType): void =>
+      setFormState((prev) => ({ ...prev, [filed]: option }));
+
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isPanelOpen) return;
 
     const handleClickOutside = (event: MouseEvent): void => {
       const target = event.target as Node;
 
       if (containerRef.current?.contains(target)) return;
 
-      setIsOpen(false);
+      setIsPanelOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
 
     return (): void => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isPanelOpen]);
 
   return (
     <div ref={containerRef}>
-      <ArrowButton isOpen={isOpen} onClick={togglePanel} />
-      <aside className={clsx(styles.container, { [styles.container_open]: isOpen })}>
+      <ArrowButton isOpen={isPanelOpen} onClick={togglePanel} />
+      <aside
+        className={clsx(styles.container, { [styles.container_open]: isPanelOpen })}
+      >
         <form
           className={styles.form}
           onSubmit={(e): void => {
@@ -79,9 +86,7 @@ export const ArticleParamsForm = ({
             title="шрифт"
             selected={formState.fontFamilyOption}
             options={fontFamilyOptions}
-            onChange={(option): void => {
-              setFormState({ ...formState, fontFamilyOption: option });
-            }}
+            onChange={handleChange('fontFamilyOption')}
           />
 
           <RadioGroup
@@ -89,18 +94,14 @@ export const ArticleParamsForm = ({
             name="fontSize"
             options={fontSizeOptions}
             selected={formState.fontSizeOption}
-            onChange={(option): void =>
-              setFormState({ ...formState, fontSizeOption: option })
-            }
+            onChange={handleChange('fontSizeOption')}
           />
 
           <Select
             title="цвет шрифта"
             selected={formState.fontColor}
             options={fontColors}
-            onChange={(option): void => {
-              setFormState({ ...formState, fontColor: option });
-            }}
+            onChange={handleChange('fontColor')}
           />
 
           <Separator />
@@ -109,18 +110,14 @@ export const ArticleParamsForm = ({
             title="цвет фона"
             selected={formState.backgroundColor}
             options={backgroundColors}
-            onChange={(option): void => {
-              setFormState({ ...formState, backgroundColor: option });
-            }}
+            onChange={handleChange('backgroundColor')}
           />
 
           <Select
             title="ширина контента"
             selected={formState.contentWidth}
             options={contentWidthArr}
-            onChange={(option): void => {
-              setFormState({ ...formState, contentWidth: option });
-            }}
+            onChange={handleChange('contentWidth')}
           />
 
           <div className={styles.bottomContainer}>
