@@ -28,8 +28,8 @@ export const ArticleParamsForm = ({
 }: ArticleParamsFormProps): React.JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const [formState, setFormState] = useState<ArticleStateType>(defaultArticleState);
-  const sidebarRef = useRef<HTMLElement>(null);
   const togglePanel = (): void => setIsOpen((prev) => !prev);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleReset = (): void => {
     setFormState(defaultArticleState);
@@ -46,13 +46,7 @@ export const ArticleParamsForm = ({
     const handleClickOutside = (event: MouseEvent): void => {
       const target = event.target as Node;
 
-      if (sidebarRef.current?.contains(target)) return;
-
-      const arrow = document.querySelector(
-        '[aria-label="Открыть/Закрыть форму параметров статьи"]'
-      );
-
-      if (arrow?.contains(target)) return;
+      if (containerRef.current?.contains(target)) return;
 
       setIsOpen(false);
     };
@@ -64,12 +58,9 @@ export const ArticleParamsForm = ({
   }, [isOpen]);
 
   return (
-    <>
+    <div ref={containerRef}>
       <ArrowButton isOpen={isOpen} onClick={togglePanel} />
-      <aside
-        ref={sidebarRef}
-        className={clsx(styles.container, { [styles.container_open]: isOpen })}
-      >
+      <aside className={clsx(styles.container, { [styles.container_open]: isOpen })}>
         <form
           className={styles.form}
           onSubmit={(e): void => {
@@ -81,85 +72,63 @@ export const ArticleParamsForm = ({
             handleReset();
           }}
         >
-          <div className={styles.title}>
-            <Text as="h2" size={31} weight={800} uppercase={true}>
-              Задайте параметры
-            </Text>
-          </div>
-          <div className={styles.selected}>
-            <div className={styles.sectionTitle}>
-              <Text as="h2" size={12} weight={800} uppercase={true}>
-                Шрифт
-              </Text>
-            </div>
-            <Select
-              selected={formState.fontFamilyOption}
-              options={fontFamilyOptions}
-              onChange={(option): void => {
-                setFormState({ ...formState, fontFamilyOption: option });
-              }}
-            />
-          </div>
-          <div className={styles.selected}>
-            <RadioGroup
-              title="Размер шрифта"
-              name="fontSize"
-              options={fontSizeOptions}
-              selected={formState.fontSizeOption}
-              onChange={(option): void =>
-                setFormState({ ...formState, fontSizeOption: option })
-              }
-            />
-          </div>
-          <div className={styles.selected}>
-            <div className={styles.sectionTitle}>
-              <Text as="h2" size={12} weight={800}>
-                Цвет шрифта
-              </Text>
-            </div>
-            <Select
-              selected={formState.fontColor}
-              options={fontColors}
-              onChange={(option): void => {
-                setFormState({ ...formState, fontColor: option });
-              }}
-            />
-          </div>
+          <Text size={31} weight={800} uppercase={true}>
+            Задайте параметры
+          </Text>
+          <Select
+            title="шрифт"
+            selected={formState.fontFamilyOption}
+            options={fontFamilyOptions}
+            onChange={(option): void => {
+              setFormState({ ...formState, fontFamilyOption: option });
+            }}
+          />
+
+          <RadioGroup
+            title="Размер шрифта"
+            name="fontSize"
+            options={fontSizeOptions}
+            selected={formState.fontSizeOption}
+            onChange={(option): void =>
+              setFormState({ ...formState, fontSizeOption: option })
+            }
+          />
+
+          <Select
+            title="цвет шрифта"
+            selected={formState.fontColor}
+            options={fontColors}
+            onChange={(option): void => {
+              setFormState({ ...formState, fontColor: option });
+            }}
+          />
+
           <Separator />
-          <div className={styles.selectedTwo}>
-            <div className={styles.sectionTitle}>
-              <Text as="h2" size={12} weight={800}>
-                цвет фона
-              </Text>
-            </div>
-            <Select
-              selected={formState.backgroundColor}
-              options={backgroundColors}
-              onChange={(option): void => {
-                setFormState({ ...formState, backgroundColor: option });
-              }}
-            />
-          </div>
-          <div className={styles.selectedFree}>
-            <div className={styles.sectionTitle}>
-              <Text as="h2" size={12} weight={800}>
-                ширина контента
-              </Text>
-            </div>
-            <Select
-              selected={formState.contentWidth}
-              options={contentWidthArr}
-              onChange={(option): void => {
-                setFormState({ ...formState, contentWidth: option });
-              }}
-            />
-          </div>
+
+          <Select
+            title="цвет фона"
+            selected={formState.backgroundColor}
+            options={backgroundColors}
+            onChange={(option): void => {
+              setFormState({ ...formState, backgroundColor: option });
+            }}
+          />
+
+          <Select
+            title="ширина контента"
+            selected={formState.contentWidth}
+            options={contentWidthArr}
+            onChange={(option): void => {
+              setFormState({ ...formState, contentWidth: option });
+            }}
+          />
+
           <div className={styles.bottomContainer}>
             <Button title="Сбросить" htmlType="reset" type="clear" />
             <Button title="Применить" htmlType="submit" type="apply" />
           </div>
         </form>
       </aside>
-    </>
+    </div>
   );
 };
